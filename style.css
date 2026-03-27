@@ -108,7 +108,30 @@ button:hover { background-color: var(--btn-color); color: var(--bg-color); }
 #dog { top: 100px; right: -60px; color: #f9e2af; }
 .peek { animation: peek 5s ease-in-out; }
 @keyframes peek { 0% { right: -60px; } 20% { right: 20px; } 80% { right: 20px; } 100% { right: -60px; } }
-.chara-speech { position: absolute; top: -50px; left: -50px; width: max-content; background: white; color: black; padding: 8px 12px; border-radius: 10px; font-size: 14px; font-weight: bold; pointer-events: none; animation: popIn 0.3s forwards; }
+/* --- キャラのセリフ吹き出し（端っこ見切れ防止版！） --- */
+.chara-speech {
+    position: absolute; 
+    bottom: 100%; /* キャラの上に表示 */
+    margin-bottom: 15px; /* キャラと吹き出しの隙間 */
+    width: max-content;
+    max-width: 220px; /* スマホでもはみ出ないように最大幅を設定！改行される！ */
+    background: white; color: black; padding: 10px 15px; border-radius: 12px;
+    font-size: 14px; font-weight: bold; pointer-events: none; 
+    animation: popIn 0.3s forwards;
+    z-index: 200; /* 絶対に手前に来るように！ */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    word-break: break-word; /* 長い文字は綺麗に改行 */
+}
+
+/* 画面の右半分にいるキャラ用（左方向に伸びる！） */
+.speech-right {
+    right: -10px; /* キャラの右側に基準を置いて、左へ伸ばす */
+}
+
+/* 画面の左半分にいるキャラ用（右方向に伸びる！） */
+.speech-left {
+    left: -10px; /* キャラの左側に基準を置いて、右へ伸ばす */
+}
 /* --- 🃏 ダーリン♡特別ステージ用テーマ --- */
 
 /* 背景の狂気エフェクト */
@@ -250,33 +273,59 @@ body.theme-ili button:hover { background: #a6adc8; color: #11111b; }
     color: #11111b;
 }
 
+/* --- 🚪 左上固定 EXITボタン --- */
+.btn-exit-fixed {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: transparent;
+    border: 1px solid #a6adc8;
+    color: #a6adc8;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 1000;
+    transition: 0.2s;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: bold;
+}
+.btn-exit-fixed:hover {
+    background: #a6adc8;
+    color: #11111b;
+}
+
+/* 画面上部にEXITボタンのスペースを空ける */
+body {
+    padding-top: 60px;
+}
+
 /* 📱 スマホ用レスポンシブデザイン！ */
 @media screen and (max-width: 600px) {
-    body { padding: 10px; }
+    body { padding: 60px 10px 10px 10px; }
     h1 { font-size: 22px; }
     h2 { font-size: 18px; }
+    
+    .btn-exit-fixed { top: 10px; left: 10px; font-size: 12px; padding: 6px 10px; }
     
     .container { width: 100%; }
     .situation-box { padding: 15px; }
     input[type="text"], select { width: 100%; box-sizing: border-box; }
     
-    /* ボタンを縦並びや押しやすいサイズに */
     .buttons { flex-direction: column; gap: 10px; }
     button { width: 100%; box-sizing: border-box; font-size: 14px; padding: 15px; }
     
-    /* 吹き出しが画面外にはみ出ないように */
     .thought-bubble { max-width: 200px; font-size: 12px; padding: 8px 12px; }
     
-    /* ミニゲームモーダルの調整 */
     .darling-modal { width: 95%; padding: 20px; }
-    
-    /* エンド画面（ブルースクリーン）の調整 */
     .bsod-screen { padding: 20px; overflow-y: auto; }
     #bsod-h1 { font-size: 20px !important; }
     #end-title { font-size: 16px !important; }
     #end-message-box { font-size: 12px !important; }
     
-    /* 巨大猫の調整 */
     .giant-ili { font-size: 180px; bottom: -30px; }
     .giant-speech { font-size: 14px; left: 50%; top: 30px; }
 }
