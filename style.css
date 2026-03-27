@@ -102,7 +102,11 @@ button:hover { background-color: var(--btn-color); color: var(--bg-color); }
 }
 
 /* お邪魔キャラクター */
-.chara { position: fixed; font-size: 40px; cursor: pointer; z-index: 50; transition: 0.3s; display: none; }
+.chara { 
+    position: fixed; font-size: 40px; cursor: pointer; 
+    z-index: 150; /* 🌟 UI(100)より手前に出す！！これでセリフが隠れない！ */
+    transition: 0.3s; display: none; 
+}
 .chara:hover { transform: scale(1.2); }
 #cat { bottom: 30px; left: -60px; color: #a6adc8; cursor: default; } 
 .walk-right { animation: walk 6s linear forwards; }
@@ -195,18 +199,24 @@ body.theme-darling .stress-bar { background: #ff007f; box-shadow: 0 0 10px #ff00
 
 /* 白ウサギ (ISTJ) 絵文字化 🐇 */
 .rabbit-chara {
-    font-size: 60px; bottom: 60px; right: -100px; z-index: 60;
+    font-size: 60px; bottom: 60px; right: -100px; 
+    z-index: 160; /* さらに手前に！ */
     display: none;
 }
 .run-left { animation: runFast 3s linear forwards; }
-@keyframes runFast { 0% { right: -100px; transform: scaleX(-1); } 100% { right: 120vw; transform: scaleX(-1); } }
-
+/* 🌟 scaleX(-1)を消したよ！これで文字が逆にならないし、ウサギも本来の左向きで左に走る！ */
+@keyframes runFast { 
+    0% { right: -100px; } 
+    100% { right: 120vw; } 
+}
 /* 芋虫 (LSI-Ni) 絵文字化 🐛 */
 .caterpillar-chara {
-    font-size: 50px; bottom: 120px; left: 20px; z-index: 60;
+    font-size: 50px; bottom: 120px; left: 20px; 
+    z-index: 160; /* これも手前に！ */
     display: none; cursor: pointer; transition: all 0.2s;
     text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
 }
+.squished { transform: scale(1.5, 0.2) translateY(50px); opacity: 0.5; pointer-events: none; }
 .squished { transform: scale(1.5, 0.2) translateY(50px); opacity: 0.5; pointer-events: none; }
 /* トランプ降るエフェクト */
 .falling-card {
