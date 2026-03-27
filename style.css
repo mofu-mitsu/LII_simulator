@@ -1,0 +1,282 @@
+:root {
+    --bg-color: #11111b;
+    --text-color: #cdd6f4;
+    --box-bg: #1e1e2e;
+    --accent-color: #cba6f7;
+    --btn-color: #89b4fa;
+    --danger-color: #f38ba8;
+    --success-color: #a6e3a1;
+}
+
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0; padding: 20px;
+    overflow: hidden; 
+    min-height: 100vh;
+}
+
+.container { max-width: 600px; margin: 0 auto; text-align: center; position: relative; z-index: 100; }
+h1 { color: var(--accent-color); font-size: 28px; }
+.screen { display: none; animation: fadeIn 0.5s ease; }
+.screen.active { display: block; }
+
+/* 説明文ボックス */
+.desc-box { background: rgba(203, 166, 247, 0.1); border: 1px solid var(--accent-color); padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+
+.input-group, .situation-box { background: var(--box-bg); padding: 20px; border-radius: 12px; margin-bottom: 20px; }
+.situation-box { border-left: 5px solid var(--accent-color); box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+input[type="text"], select { width: 85%; padding: 12px; border-radius: 8px; border: 1px solid var(--btn-color); background: var(--bg-color); color: var(--text-color); font-size: 16px; margin-top: 10px; }
+
+.buttons { display: flex; gap: 15px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+button { background-color: var(--box-bg); color: var(--btn-color); border: 2px solid var(--btn-color); padding: 12px 20px; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.2s; font-weight: bold; }
+button:hover { background-color: var(--btn-color); color: var(--bg-color); }
+.btn-escape { border-color: var(--danger-color); color: var(--danger-color); width: 100%; }
+.btn-escape:hover { background-color: var(--danger-color); color: var(--bg-color); }
+
+/* 思考の吹き出し (エンド時は裏に回るように z-index:10 ) */
+.thought-bubble {
+    position: fixed; background-color: rgba(30, 30, 46, 0.95); border: 1px solid var(--accent-color);
+    padding: 12px 16px; border-radius: 20px; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+    max-width: 250px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    z-index: 10; display: flex; align-items: center; gap: 10px; pointer-events: none;
+}
+.thought-bubble i { color: var(--accent-color); font-size: 18px; }
+.counter-bubble { border-color: var(--danger-color); color: var(--danger-color); } 
+.counter-bubble i { color: var(--danger-color); }
+@keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+.stress-bar-container { width: 100%; height: 10px; background: #313244; border-radius: 5px; margin-top: 20px; overflow: hidden; }
+.stress-bar { height: 100%; width: 0%; background: var(--danger-color); transition: width 0.3s; }
+
+/* ログボックス */
+.log-box { background: var(--bg-color); padding: 15px; border-radius: 12px; border: 1px solid #585b70; margin: 20px 0; text-align: left; }
+.log-box h3 { color: var(--accent-color); font-size: 18px; margin-top: 0; border-bottom: 1px solid #585b70; padding-bottom: 10px;}
+.log-box ul { list-style-type: none; padding: 0; margin: 0; }
+.log-box li { margin-bottom: 10px; font-size: 14px; border-left: 3px solid var(--btn-color); padding-left: 10px;}
+
+
+/* エンド画面の装飾（バグ修正版） */
+.end-screen {
+    position: fixed; /* 画面に対して固定 */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* ど真ん中に配置 */
+    width: 90%;
+    max-width: 600px;
+    z-index: 9999; /* 宇宙一最前面に設定！！！ */
+    background: var(--box-bg);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 0 50px rgba(243, 139, 168, 0.5); 
+    border: 2px solid var(--danger-color);
+    box-sizing: border-box;
+    text-align: center;
+}
+
+/* 暗転オーバーレイ */
+.end-overlay {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(17, 17, 27, 0.85); 
+    backdrop-filter: blur(5px); 
+    z-index: 9000; /* エンド画面より奥、その他より手前 */
+    display: none;
+}
+.end-overlay.active { display: block; animation: flashRed 0.5s ease-out; }
+/* フリーズ演出 */
+@keyframes flashRed {
+    0% { background: rgba(243, 139, 168, 0.8); }
+    100% { background: rgba(17, 17, 27, 0.85); }
+}
+.shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes shake {
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    20%, 80% { transform: translate3d(4px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-6px, 0, 0); }
+    40%, 60% { transform: translate3d(6px, 0, 0); }
+}
+
+/* お邪魔キャラクター */
+.chara { position: fixed; font-size: 40px; cursor: pointer; z-index: 50; transition: 0.3s; display: none; }
+.chara:hover { transform: scale(1.2); }
+#cat { bottom: 30px; left: -60px; color: #a6adc8; cursor: default; } 
+.walk-right { animation: walk 6s linear forwards; }
+@keyframes walk { 0% { left: -60px; } 50% { left: 50vw; } 100% { left: 120vw; } }
+#flower { bottom: 20px; right: 30px; color: #a6e3a1; display: block; animation: sway 3s infinite alternate ease-in-out; }
+@keyframes sway { 0% { transform: rotate(-10deg); } 100% { transform: rotate(10deg); } }
+#dog { top: 100px; right: -60px; color: #f9e2af; }
+.peek { animation: peek 5s ease-in-out; }
+@keyframes peek { 0% { right: -60px; } 20% { right: 20px; } 80% { right: 20px; } 100% { right: -60px; } }
+.chara-speech { position: absolute; top: -50px; left: -50px; width: max-content; background: white; color: black; padding: 8px 12px; border-radius: 10px; font-size: 14px; font-weight: bold; pointer-events: none; animation: popIn 0.3s forwards; }
+/* --- 🃏 ダーリン♡特別ステージ用テーマ --- */
+
+/* 背景の狂気エフェクト */
+.wonderland-bg {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: repeating-radial-gradient(circle at center, #2e003e 0, #1a0024 20px, #000 40px);
+    opacity: 0; pointer-events: none; z-index: -1;
+    transition: opacity 1s;
+    animation: spinBg 20s linear infinite;
+}
+@keyframes spinBg { 100% { transform: rotate(360deg) scale(2); } }
+
+/* darlingテーマがbodyに付与された時のスタイル */
+body.theme-darling {
+    background-color: #1a0024;
+    color: #ffb3c6;
+}
+body.theme-darling .wonderland-bg { opacity: 0.6; }
+
+body.theme-darling .situation-box {
+    border-color: #ff007f;
+    box-shadow: 0 0 20px rgba(255, 0, 127, 0.5);
+    background: rgba(46, 0, 62, 0.8);
+}
+body.theme-darling h1, body.theme-darling h2 { color: #ff007f; text-shadow: 2px 2px 5px #000; }
+body.theme-darling button { border-color: #ff007f; color: #ffb3c6; }
+body.theme-darling button:hover { background: #ff007f; color: #fff; }
+body.theme-darling .stress-bar { background: #ff007f; box-shadow: 0 0 10px #ff007f; }
+
+/* ダーリンキャラのスタイル */
+.darling-chara {
+    color: #ff007f; font-size: 60px; z-index: 100;
+    text-shadow: 0 0 15px rgba(255, 0, 127, 0.8);
+    animation: floatDarling 3s ease-in-out infinite;
+    display: none;
+}
+@keyframes floatDarling {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+/* ギミック：画面回転 */
+.crazy-rotate { animation: crazyRot 0.5s ease-in-out; }
+@keyframes crazyRot {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(5deg) scale(1.05); }
+    75% { transform: rotate(-5deg) scale(0.95); }
+    100% { transform: rotate(0deg); }
+}
+
+/* ギミック：吹き出しが裏返る */
+.flip-bubble { animation: flipIt 1s forwards; border-color: #ff007f !important; }
+@keyframes flipIt { 100% { transform: rotateY(180deg) scale(1.1); background: #4a0033; } }
+
+/* --- 🃏 不思議の国 追加ギミック --- */
+
+
+/* 白ウサギ (ISTJ) 絵文字化 🐇 */
+.rabbit-chara {
+    font-size: 60px; bottom: 60px; right: -100px; z-index: 60;
+    display: none;
+}
+.run-left { animation: runFast 3s linear forwards; }
+@keyframes runFast { 0% { right: -100px; transform: scaleX(-1); } 100% { right: 120vw; transform: scaleX(-1); } }
+
+/* 芋虫 (LSI-Ni) 絵文字化 🐛 */
+.caterpillar-chara {
+    font-size: 50px; bottom: 120px; left: 20px; z-index: 60;
+    display: none; cursor: pointer; transition: all 0.2s;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+}
+.squished { transform: scale(1.5, 0.2) translateY(50px); opacity: 0.5; pointer-events: none; }
+/* トランプ降るエフェクト */
+.falling-card {
+    position: fixed; top: -50px; color: #ff007f; font-size: 24px;
+    z-index: 5; pointer-events: none; animation: fallDown linear forwards;
+}
+@keyframes fallDown {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+}
+
+/* ダーリンのミニゲームモーダル */
+.darling-modal {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+    width: 85%; max-width: 500px; background: rgba(46, 0, 62, 0.95);
+    border: 3px solid #ff007f; box-shadow: 0 0 30px #ff007f;
+    padding: 30px; border-radius: 20px; z-index: 10000; text-align: center;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.darling-modal.show { transform: translate(-50%, -50%) scale(1); }
+.darling-modal button { font-size: 14px; width: 100%; margin-bottom: 10px; border-color: #ff007f; color: #ffb3c6; }
+.darling-modal button:hover { background: #ff007f; color: #fff; }
+
+/* --- 💻 ブルースクリーン（BSoD）風リザルト画面 --- */
+.bsod-screen {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: #0044aa; color: #ffffff;
+    z-index: 10000; padding: 40px; box-sizing: border-box;
+    font-family: 'Consolas', 'Courier New', monospace;
+    text-align: left;
+    display: none;
+}
+.bsod-screen.active { display: block; }
+
+/* --- 🐈 巨大ILI猫（癒やしステージ用） --- */
+.giant-ili {
+    position: fixed; bottom: -50px; left: 50%; transform: translateX(-50%);
+    font-size: 250px; color: #313244; z-index: 1; opacity: 0.8;
+    display: none; transition: all 0.5s ease;
+}
+.giant-speech {
+    position: absolute; top: 50px; left: 60%; font-size: 20px;
+    background: #fff; color: #000; padding: 10px 20px; border-radius: 20px;
+    white-space: nowrap; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+}
+body.theme-ili { background: #11111b; }
+body.theme-ili .situation-box { background: rgba(30, 30, 46, 0.5); border-color: #a6adc8; }
+body.theme-ili button { border-color: #a6adc8; color: #a6adc8; }
+body.theme-ili button:hover { background: #a6adc8; color: #11111b; }
+
+/* --- ♥️ ダーリンのタップゲー用ハート --- */
+.tap-heart {
+    position: absolute; font-size: 40px; color: #ff007f; cursor: pointer;
+    text-shadow: 0 0 10px #ff007f; transition: transform 0.1s;
+}
+.tap-heart:active { transform: scale(1.5); }
+
+/* EXITボタン用のスタイル */
+.btn-exit {
+    background: transparent;
+    border: 1px solid #a6adc8;
+    color: #a6adc8;
+    margin-top: 15px;
+}
+.btn-exit:hover {
+    background: #a6adc8;
+    color: #11111b;
+}
+
+/* 📱 スマホ用レスポンシブデザイン！ */
+@media screen and (max-width: 600px) {
+    body { padding: 10px; }
+    h1 { font-size: 22px; }
+    h2 { font-size: 18px; }
+    
+    .container { width: 100%; }
+    .situation-box { padding: 15px; }
+    input[type="text"], select { width: 100%; box-sizing: border-box; }
+    
+    /* ボタンを縦並びや押しやすいサイズに */
+    .buttons { flex-direction: column; gap: 10px; }
+    button { width: 100%; box-sizing: border-box; font-size: 14px; padding: 15px; }
+    
+    /* 吹き出しが画面外にはみ出ないように */
+    .thought-bubble { max-width: 200px; font-size: 12px; padding: 8px 12px; }
+    
+    /* ミニゲームモーダルの調整 */
+    .darling-modal { width: 95%; padding: 20px; }
+    
+    /* エンド画面（ブルースクリーン）の調整 */
+    .bsod-screen { padding: 20px; overflow-y: auto; }
+    #bsod-h1 { font-size: 20px !important; }
+    #end-title { font-size: 16px !important; }
+    #end-message-box { font-size: 12px !important; }
+    
+    /* 巨大猫の調整 */
+    .giant-ili { font-size: 180px; bottom: -30px; }
+    .giant-speech { font-size: 14px; left: 50%; top: 30px; }
+}

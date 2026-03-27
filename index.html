@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合理の檻 - LII思考シミュレーター</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container" id="main-container">
+        <!-- タイトル画面 -->
+        <div id="screen-title" class="screen active">
+            <h1><i class="fa-solid fa-brain"></i> 合理の檻</h1>
+            <p style="color: var(--accent-color); font-weight: bold;">〜 LII思考ループ体験シミュレーター 〜</p>
+            
+            <div class="desc-box">
+                <p><strong>【 あなたは INTJ / LII です 】</strong></p>
+                <p style="font-size: 14px; text-align: left;">
+                これは「内的論理(Ti/Ni)」が暴走し、「行動(Se)」が伴わず、思考のループから抜け出せなくなる体験ツールです。<br>
+                何を選んでも思考が増殖し、他者(ILI等)の介入すらも反論の材料になります。最適解を求めるがあまり、脳のメモリが限界を迎える過程をお楽しみください。
+                </p>
+            </div>
+
+            <div class="input-group">
+                <label for="user-type"><i class="fa-solid fa-tags"></i> あなたの自認タイプ</label><br>
+                <input type="text" id="user-type" placeholder="例：INTJ、LII、5w4など">
+            </div>
+            
+            <div class="input-group">
+                <label for="stage-select"><i class="fa-solid fa-list"></i> シチュエーションを選択</label><br>
+                <select id="stage-select"></select>
+            </div>
+
+            <button onclick="startGame()"><i class="fa-solid fa-door-open"></i> 思考の迷宮へ入る</button>
+            <br>
+            <!-- 🚪 EXITボタン（本サイトへ） -->
+            <button class="btn-exit" onclick="window.location.href='https://mofu-mitsu.github.io/'">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> EXIT
+            </button>
+        </div>
+
+        <!-- ゲーム画面 -->
+        <div id="screen-game" class="screen">
+            <h2 id="stage-title">Stage Title</h2>
+            <div class="situation-box">
+                <h3 id="sit-title"><i class="fa-solid fa-comment-dots"></i> シチュエーション</h3>
+                <p id="sit-desc">状況が入ります。</p>
+            </div>
+            <div class="buttons">
+                <button onclick="addThought('manual')"><i class="fa-solid fa-check"></i> 選択肢A</button>
+                <button onclick="addThought('manual')"><i class="fa-solid fa-xmark"></i> 選択肢B</button>
+                <button onclick="addThought('manual')"><i class="fa-solid fa-spinner"></i> 保留にする</button>
+            </div>
+            <button class="btn-escape" onclick="tryEscape()"><i class="fa-solid fa-person-running"></i> ループを抜け出して決断する</button>
+            <br>
+            <!-- 🚪 ゲーム中断ボタン（タイトルへ） -->
+            <button class="btn-exit" style="border: none; text-decoration: underline;" onclick="location.reload()">
+                <i class="fa-solid fa-house"></i> タイトルに戻る
+            </button>
+            
+            <div class="stress-bar-container">
+                <div id="stress-bar" class="stress-bar"></div>
+            </div>
+            <p style="font-size: 12px; color: #a6adc8;">脳内疲労度（ストレス）</p>
+        </div>
+    </div>
+
+    <!-- 🐇🐛🃏 お邪魔キャラクター -->
+    <div id="rabbit" class="chara rabbit-chara">🐇</div>
+    <div id="caterpillar" class="chara caterpillar-chara" onclick="triggerCaterpillar()">🐛</div>
+    <div id="cards-container"></div>
+
+    <div id="darling-minigame1" class="darling-modal">
+        <h2 style="color: #ff007f;"><i class="fa-solid fa-heart-circle-exclamation"></i> ダーリンの退屈しのぎ♡</h2>
+        <p>「ねぇダーリン♡ 私、退屈しちゃった。<br>今から3秒以内に私を一番『論理的』に楽しませる選択をして？♡」</p>
+        <h1 id="timer1" style="color: red; font-size: 40px;">3</h1>
+        <div class="buttons">
+            <button onclick="answerMinigame(1, '効率')">「効率的なシステム改善案を提示」</button>
+            <button onclick="answerMinigame(1, '感情')">「愛していると感情(Fe)で伝える」</button>
+            <button onclick="answerMinigame(1, '沈黙')">「沈黙して観察する」</button>
+        </div>
+    </div>
+
+    <div id="darling-minigame2" class="darling-modal">
+        <h2 style="color: #ff007f;"><i class="fa-solid fa-lips"></i> 合理的なキスの証明♡</h2>
+        <p>「ねぇ、今すぐ私と『合理的』にキスする理由を3秒で挙げて？♡」</p>
+        <h1 id="timer2" style="color: red; font-size: 40px;">3</h1>
+        <div class="buttons">
+            <button onclick="answerMinigame(2, 'オキシトシン')">「オキシトシン分泌によるストレス緩和」</button>
+            <button onclick="answerMinigame(2, '生存戦略')">「社会的結合の強化という生存戦略」</button>
+            <button onclick="answerMinigame(2, '拒否')">「論理的メリットはない。よって拒否」</button>
+        </div>
+    </div>
+
+    <div id="darling-minigame3" class="darling-modal" style="background: rgba(46, 0, 62, 0.4);">
+        <h2 style="color: #ff007f; text-shadow: 2px 2px 5px #000;"><i class="fa-solid fa-heart-crack"></i> 愛のオーバーフロー♡</h2>
+        <p style="text-shadow: 1px 1px 3px #000;">「ねぇ、私の愛（変数）が多すぎる？<br>だったら3秒以内に全部処理（タップ）してみて？♡」</p>
+        <h1 id="timer3" style="color: red; font-size: 50px; text-shadow: 2px 2px 5px #000;">3</h1>
+        <div id="heart-container" style="position: relative; height: 150px; width: 100%;"></div>
+    </div>
+
+    <div id="giant-ili" class="giant-ili">
+        <i class="fa-solid fa-cat"></i>
+        <div id="giant-ili-speech" class="giant-speech">「無駄無駄。寝なよ。」</div>
+    </div>
+
+    <div id="cat" class="chara"><i class="fa-solid fa-cat"></i></div>
+    <div id="flower" class="chara" onclick="triggerFlower()"><i class="fa-solid fa-seedling"></i></div>
+    <div id="dog" class="chara" onclick="triggerDog()"><i class="fa-solid fa-dog"></i></div>
+    <div id="darling" class="chara darling-chara"><i class="fa-solid fa-heart-crack"></i></div>
+
+    <!-- 💻 エンド画面 -->
+    <div id="end-overlay" class="end-overlay"></div>
+    <div id="screen-end" class="screen bsod-screen">
+        <h1 style="font-family: monospace; font-size: 24px; margin-bottom: 10px;" id="bsod-h1">:( SYSTEM_FREEZE_ERROR</h1>
+        <p style="font-family: monospace; text-align: left; font-size: 12px;" id="bsod-p">
+            A problem has been detected and your brain has been shut down to prevent damage to your logical processor.<br><br>
+            REASON: Ti_Ne_LOOP_OVERFLOW<br>
+            FAILED_PROCESS: decision_making.exe
+        </p>
+        
+        <h2 id="end-title" style="color: #fff; margin-top: 20px; background: #000; display: inline-block; padding: 5px; font-size: 18px;">【称号】</h2>
+        
+        <div class="log-box" id="action-log" style="background: transparent; border: 1px solid #fff; margin-top: 15px;">
+            <h3 style="color: #fff; border-bottom: 1px dashed #fff; font-size: 16px;">> THOUGHT_LOGS.txt</h3>
+            <ul id="log-list" style="color: #fff; font-size: 14px;"></ul>
+        </div>
+
+        <!-- キャラの煽りメッセージエリア（確実に出るように色調整！） -->
+        <div id="end-message-box" style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.15); color: #fff; border: 1px dashed #fff; border-radius: 5px; font-weight: bold; font-size: 14px;">
+            メッセージ
+        </div>
+
+        <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+            <button class="btn-share" style="background:#fff; color:#000; border:none;" onclick="shareResult()"><i class="fa-brands fa-x-twitter"></i> シェア</button>
+            <button style="background:transparent; color:#fff; border:1px solid #fff;" onclick="location.reload()">> REBOOT (再起動)</button>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
