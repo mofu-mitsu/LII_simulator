@@ -12,8 +12,10 @@ body {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     background-color: var(--bg-color);
     color: var(--text-color);
-    margin: 0; padding: 20px;
-    overflow: hidden; 
+    margin: 0; 
+    padding: 60px 20px 100px 20px; /* 下に余裕（100px）を持たせる！ */
+    overflow-x: hidden; /* 横スクロールだけ防ぐ */
+    overflow-y: auto;   /* 🌟 縦スクロールを許可！！これでタイトルも押せる！ */
     min-height: 100vh;
 }
 
@@ -40,7 +42,9 @@ button:hover { background-color: var(--btn-color); color: var(--bg-color); }
     position: fixed; background-color: rgba(30, 30, 46, 0.95); border: 1px solid var(--accent-color);
     padding: 12px 16px; border-radius: 20px; font-size: 14px; box-shadow: 0 4px 10px rgba(0,0,0,0.8);
     max-width: 250px; animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    z-index: 10; display: flex; align-items: center; gap: 10px; pointer-events: none;
+    z-index: 500; /* 🌟 UI（100）より手前に持ってくる！これで文字が読める！ */
+    display: flex; align-items: center; gap: 10px; 
+    pointer-events: none; /* 🌟 手前にあってもクリックは貫通するからボタンは押せる！ */
 }
 .thought-bubble i { color: var(--accent-color); font-size: 18px; }
 .counter-bubble { border-color: var(--danger-color); color: var(--danger-color); } 
@@ -305,7 +309,7 @@ body {
 
 /* 📱 スマホ用レスポンシブデザイン！ */
 @media screen and (max-width: 600px) {
-    body { padding: 60px 10px 10px 10px; }
+    body { padding: 60px 10px 100px 10px; }
     h1 { font-size: 22px; }
     h2 { font-size: 18px; }
     
