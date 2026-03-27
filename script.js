@@ -137,15 +137,37 @@ function updateStressBar() {
     document.getElementById('stress-bar').style.width = `${Math.min(progress, 100)}%`;
 }
 
+// ==========================================
+// 💬 吹き出し生成関数（スマホの中央被り防止版！）
+// ==========================================
 function createBubble(text, icon, isCounter) {
     const bubble = document.createElement('div');
     bubble.className = `thought-bubble ${isCounter ? 'counter-bubble' : ''}`;
     bubble.innerHTML = `<i class="${icon}"></i> <span>${text}</span>`;
     
-    const x = Math.max(10, Math.random() * (window.innerWidth - 260));
-    const y = Math.max(10, Math.random() * (window.innerHeight - 80));
+    let x, y;
+    
+    // 📱 スマホサイズ（画面幅600px以下）の時の配置アルゴリズム
+    if (window.innerWidth <= 600) {
+        x = Math.max(10, Math.random() * (window.innerWidth - 200)); // 横幅をスマホ用に調整
+        
+        // 🌟 中央のボタンエリアを避けて、上部（30%）か下部（40%）にランダムで振り分ける！
+        if (Math.random() < 0.5) {
+            // 上の方に出す
+            y = Math.max(60, Math.random() * (window.innerHeight * 0.3)); 
+        } else {
+            // 下の方に出す
+            y = Math.max(window.innerHeight * 0.6, Math.random() * (window.innerHeight - 100)); 
+        }
+    } else {
+        // 💻 PCの場合は今まで通り全体に散らす
+        x = Math.max(10, Math.random() * (window.innerWidth - 260));
+        y = Math.max(60, Math.random() * (window.innerHeight - 80));
+    }
+    
     bubble.style.left = `${x}px`;
     bubble.style.top = `${y}px`;
+    
     document.body.appendChild(bubble);
 }
 
