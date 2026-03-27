@@ -3,11 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 🔍 SEO & OGP メタタグ -->
     <title>合理の檻 - LII思考シミュレーター</title>
+    <meta name="description" content="LII思考ループ体験シミュレーター。内的論理(Ti/Ni)が暴走し、思考のループから抜け出せなくなるMBTI/ソシオニクス体験ツールです。">
+    <meta property="og:title" content="合理の檻 - LII思考シミュレーター">
+    <meta property="og:description" content="内的論理が暴走し、行動が伴わず、思考のループから抜け出せなくなる体験ツールです。あなたは最適解を見つけられますか？">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mofu-mitsu.github.io/LII_simulator">
+    <meta property="og:image" content="https://mofu-mitsu.github.io/LII_simulator/ogp.png">
+    <meta name="twitter:card" content="summary_large_image">
+    
+    <!-- 🧠 Favicon (絵文字で代用！) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2250%%22 style=%22dominant-baseline:central;text-anchor:middle;font-size:80px;%22>🧠</text></svg>">
+
+    <!-- FontAwesome & CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+    <!-- 🚪 左上固定 EXITボタン -->
+    <!-- ① タイトル画面用：みつきのサイトへ -->
+    <a href="https://mofu-mitsu.github.io/" id="exit-to-site" class="btn-exit-fixed">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i> EXIT
+    </a>
+    <!-- ② ゲーム画面用：タイトルに戻る -->
+    <button id="exit-to-title" class="btn-exit-fixed" style="display: none;" onclick="location.reload()">
+        <i class="fa-solid fa-house"></i> EXIT
+    </button>
 
     <div class="container" id="main-container">
         <!-- タイトル画面 -->
@@ -34,11 +58,6 @@
             </div>
 
             <button onclick="startGame()"><i class="fa-solid fa-door-open"></i> 思考の迷宮へ入る</button>
-            <br>
-            <!-- 🚪 EXITボタン（本サイトへ） -->
-            <button class="btn-exit" onclick="window.location.href='https://mofu-mitsu.github.io/'">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i> EXIT
-            </button>
         </div>
 
         <!-- ゲーム画面 -->
@@ -54,11 +73,6 @@
                 <button onclick="addThought('manual')"><i class="fa-solid fa-spinner"></i> 保留にする</button>
             </div>
             <button class="btn-escape" onclick="tryEscape()"><i class="fa-solid fa-person-running"></i> ループを抜け出して決断する</button>
-            <br>
-            <!-- 🚪 ゲーム中断ボタン（タイトルへ） -->
-            <button class="btn-exit" style="border: none; text-decoration: underline;" onclick="location.reload()">
-                <i class="fa-solid fa-house"></i> タイトルに戻る
-            </button>
             
             <div class="stress-bar-container">
                 <div id="stress-bar" class="stress-bar"></div>
@@ -108,6 +122,7 @@
 
     <div id="cat" class="chara"><i class="fa-solid fa-cat"></i></div>
     <div id="flower" class="chara" onclick="triggerFlower()"><i class="fa-solid fa-seedling"></i></div>
+    <!-- 🐶 犬の要素（クリック用） -->
     <div id="dog" class="chara" onclick="triggerDog()"><i class="fa-solid fa-dog"></i></div>
     <div id="darling" class="chara darling-chara"><i class="fa-solid fa-heart-crack"></i></div>
 
@@ -117,7 +132,7 @@
         <h1 style="font-family: monospace; font-size: 24px; margin-bottom: 10px;" id="bsod-h1">:( SYSTEM_FREEZE_ERROR</h1>
         <p style="font-family: monospace; text-align: left; font-size: 12px;" id="bsod-p">
             A problem has been detected and your brain has been shut down to prevent damage to your logical processor.<br><br>
-            REASON: Ti_Ne_LOOP_OVERFLOW<br>
+            REASON: Ti_Ni_LOOP_OVERFLOW<br>
             FAILED_PROCESS: decision_making.exe
         </p>
         
@@ -128,7 +143,6 @@
             <ul id="log-list" style="color: #fff; font-size: 14px;"></ul>
         </div>
 
-        <!-- キャラの煽りメッセージエリア（確実に出るように色調整！） -->
         <div id="end-message-box" style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.15); color: #fff; border: 1px dashed #fff; border-radius: 5px; font-weight: bold; font-size: 14px;">
             メッセージ
         </div>
