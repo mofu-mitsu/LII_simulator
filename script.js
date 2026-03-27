@@ -26,6 +26,18 @@ window.onload = () => {
 function showScreen(screenId) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById(screenId).classList.add('active');
+
+    if(screenId === 'screen-title') {
+        document.getElementById('exit-to-site').style.display = 'flex';
+        document.getElementById('exit-to-title').style.display = 'none';
+    } else if (screenId === 'screen-game') {
+        document.getElementById('exit-to-site').style.display = 'none';
+        document.getElementById('exit-to-title').style.display = 'flex';
+    } else {
+        // エンド画面では両方消す
+        document.getElementById('exit-to-site').style.display = 'none';
+        document.getElementById('exit-to-title').style.display = 'none';
+    }
 }
 
 function startGame() {
@@ -70,7 +82,33 @@ function addThought(type) {
         cat.style.transform = 'translateX(-50%) scale(1.05)';
         speech.style.opacity = '1';
         
-        const lazyLines =["無駄無駄。寝なよ。", "それ考えて意味ある？", "省エネでいこ。", "思考キャンセェェル🐾"];
+        const lazyLines =[
+            "無駄無駄。寝なよ。",
+            "それ考えて意味ある？",
+            "省エネでいこ。",
+            "思考キャンセェェル🐾",
+
+            "はい終了〜脳みそ休憩〜",
+            "そのループ、電力食うだけだよ",
+            "結論出ないやつは切り捨て〜",
+            "はいはい、考えすぎ警報〜",
+            "それ今やるタスクじゃないよね？",
+            "後で困らないなら今やらなくていいじゃん",
+            "“今すぐ考える必要ある？”ってやつ",
+            "その不安、今解決できないやつでしょ",
+            "エネルギー効率、最悪だよそれ",
+            "脳みそオーバーヒートしてるって",
+            "はいストップ、これ以上は赤字思考",
+            "考えてもリターン0〜",
+            "それ未来の自分に投げとこ",
+            "はい、思考打ち切り〜",
+            "その問題、今日の担当じゃないよ",
+            "休むのも最適解ね",
+            "思考より睡眠のが価値あるよ今",
+            "深掘り禁止令出てるよ〜",
+            "はい撤収〜",
+            "結論：寝ろ"
+        ];
         speech.innerText = lazyLines[Math.floor(Math.random() * lazyLines.length)];
         
         setTimeout(() => {
@@ -81,7 +119,7 @@ function addThought(type) {
         totalClicks = Math.max(0, totalClicks - 0.5); 
         updateStressBar();
 
-        if (logStats.ili_cancel >= 20) {
+        if (logStats.ili_cancel >= 30) {
             if (isEnded) return; // 重複防止
             isEnded = true; 
             setTimeout(showIliHealEndScreen, 1500);
@@ -168,6 +206,7 @@ function startCharaEvents() {
         return; 
     }
 
+    // 🐈 猫：12秒ごと
     const catInterval = setInterval(() => {
         const cat = document.getElementById('cat');
         cat.style.display = 'block';
@@ -176,7 +215,6 @@ function startCharaEvents() {
         cat.classList.add('walk-right');
 
         setTimeout(() => {
-            // 🐈 ちゃんとdata.jsからランダムに取るように修正！
             const line = charaData.cat.lines[Math.floor(Math.random() * charaData.cat.lines.length)];
             showSpeech('cat', line);
             logStats.cat++; 
@@ -189,7 +227,31 @@ function startCharaEvents() {
         }, 2500); 
     }, 12000); 
 
-    gameIntervals.push(catInterval);
+    // 🐶 犬：18秒ごとに復活！！！
+    const dogInterval = setInterval(() => {
+        const dog = document.getElementById('dog');
+        dog.style.display = 'block';
+        dog.classList.remove('peek');
+        void dog.offsetWidth;
+        dog.classList.add('peek');
+    }, 18000);
+
+    gameIntervals.push(catInterval, dogInterval);
+}
+
+// 犬をクリックした時の処理（これも前のまま残してるよ！）
+function triggerDog() {
+    if (isEnded) return;
+    logStats.dog++;
+    const dogType = charaData.dog.types[Math.floor(Math.random() * charaData.dog.types.length)];
+    showSpeech('dog', `【${dogType.type}】\n${dogType.line}`);
+
+    setTimeout(() => {
+        const counters = charaData.dog.counter[dogType.type];
+        const counter = counters[Math.floor(Math.random() * counters.length)];
+        createBubble(`【LIIの反論】${counter}`, "fa-solid fa-xmark", true);
+        progressGame();
+    }, 1500);
 }
 
 function createCard() {
@@ -263,15 +325,29 @@ function tryEscape() {
     progressGame();
 }
 
+// ==========================================
+// 💬 セリフ吹き出し表示関数（見切れ防止の自動左右判定付き！）
+// ==========================================
 function showSpeech(elementId, text) {
     const el = document.getElementById(elementId);
     const speech = document.createElement('div');
-    speech.className = 'chara-speech';
+    
+    // 画面のどこにいるか座標を取得！
+    const rect = el.getBoundingClientRect();
+    
+    // 画面の真ん中より右にいるか、左にいるかでクラスを変える！
+    if (rect.left > window.innerWidth / 2) {
+        speech.className = 'chara-speech speech-right'; // 右にいるから左へ伸ばす
+    } else {
+        speech.className = 'chara-speech speech-left';  // 左にいるから右へ伸ばす
+    }
+
     speech.innerText = text;
     el.appendChild(speech);
+    
+    // 3秒後に消す
     setTimeout(() => speech.remove(), 3000);
 }
-
 // ==========================================
 // ♥️ ダーリンのミニゲーム処理
 // ==========================================
@@ -406,7 +482,7 @@ function showEndScreen() {
     if(logStats.darling > 0) logList.innerHTML += `<li>> DARLIN_INTERFERENCES: ${logStats.darling}</li>`;
     if(logStats.cat > 0) logList.innerHTML += `<li>> ILI_CAT_DAMAGES: ${logStats.cat}</li>`;
     
-    let title = "Ti-Ne_LOOP_FATAL_ERROR";
+    let title = "Ti-Ni_LOOP_FATAL_ERROR";
     let msgKey = "normal";
 
     if (selectedStage.id === "darling") {
