@@ -526,7 +526,7 @@ function showEndScreen() {
 
 function shareResult() {
     const title = document.getElementById('end-title').innerText;
-    const shareText = `【合理の檻】\n自認タイプ：${userType}\nシチュエーション：${selectedStage.title}\n\n獲得称号 ${title}\n・自問自答：${logStats.manual}回\n\n見事に思考ループの限界を迎えました。\n#思考ループ体験 #MBTI #LII`;
+    const shareText = `【合理の檻】\n自認タイプ：${userType}\nシチュエーション：${selectedStage.title}\n\n獲得称号 ${title}\n・自問自答：${logStats.manual}回\n\n見事に思考ループの限界を迎えました。\n#合理の檻 #MBTI #ソシオニクス #LII`;
     if (navigator.share) navigator.share({ text: shareText }).catch(console.error);
     else navigator.clipboard.writeText(shareText).then(() => alert("結果をコピーしたよ！"));
 }
