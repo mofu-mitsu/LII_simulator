@@ -11,8 +11,10 @@ let minigameTimer;
 // 💣 多重実行を防ぐためのフラグ！！（超重要）
 let isEnded = false; 
 
-let logStats = { manual: 0, cat: 0, flower: 0, dog: 0, escape: 0, darling: 0, ili_cancel: 0 };
+let logStats = { manual: 0, cat: 0, flower: 0, dog: 0, escape: 0, darling: 0, ili_cancel: 0, shoot_hit: 0, shoot_miss: 0 };
 
+// 💥 何が原因でフリーズしたかを記録する変数！
+let lastAction = "";
 window.onload = () => {
     const select = document.getElementById('stage-select');
     stages.forEach((stage, index) => {
@@ -43,13 +45,16 @@ function showScreen(screenId) {
 function startGame() {
     const input = document.getElementById('user-type').value;
     userType = input ? input : "名無し";
+    
     const stageIndex = document.getElementById('stage-select').value;
     selectedStage = stages[stageIndex];
     
-    // 変数初期化！
     totalClicks = 0;
-    isEnded = false; // フラグもリセット！
-    logStats = { manual: 0, cat: 0, flower: 0, dog: 0, escape: 0, darling: 0, ili_cancel: 0 };
+    isEnded = false; 
+    
+    // 💣 ここ！！ここで shoot_hit と shoot_miss を 0 にリセットするのを忘れてたの！！
+    logStats = { manual: 0, cat: 0, flower: 0, dog: 0, escape: 0, darling: 0, ili_cancel: 0, shoot_hit: 0, shoot_miss: 0 };
+    lastAction = ""; // 初期化
     
     document.body.className = ''; 
     if (selectedStage.id === "darling") document.body.classList.add('theme-darling');
@@ -70,18 +75,18 @@ function loadStage() {
 }
 
 function addThought(type) {
-    if (isEnded) return; // 終わってたら何もしない！
+    if (isEnded) return; 
     if (type === 'manual') logStats.manual++;
     
+    // ILIステージの場合
     if (selectedStage.id === "ili_heal" && Math.random() < 0.6) {
         logStats.ili_cancel++; 
         
         const cat = document.getElementById('giant-ili');
-        const speech = document.getElementById('giant-ili-speech');
-        
         cat.style.transform = 'translateX(-50%) scale(1.05)';
-        speech.style.opacity = '1';
+        setTimeout(() => { cat.style.transform = 'translateX(-50%) scale(1)'; }, 500);
         
+        // 🌟 固定メッセージじゃなくて、画面にポコポコ散らばるようにしたよ！
         const lazyLines =[
             "無駄無駄。寝なよ。",
             "それ考えて意味ある？",
@@ -109,18 +114,26 @@ function addThought(type) {
             "はい撤収〜",
             "結論：寝ろ"
         ];
-        speech.innerText = lazyLines[Math.floor(Math.random() * lazyLines.length)];
+        const text = lazyLines[Math.floor(Math.random() * lazyLines.length)];
         
-        setTimeout(() => {
-            cat.style.transform = 'translateX(-50%) scale(1)';
-            speech.style.opacity = '0';
-        }, 1500);
+        const floatSpeech = document.createElement('div');
+        floatSpeech.className = 'giant-ili-floating-speech';
+        floatSpeech.innerText = `【ILI猫】${text}`;
+        
+        // 画面のランダムな位置に表示
+        const x = Math.max(10, Math.random() * (window.innerWidth - 200));
+        const y = Math.max(10, Math.random() * (window.innerHeight - 150));
+        floatSpeech.style.left = `${x}px`;
+        floatSpeech.style.top = `${y}px`;
+        document.body.appendChild(floatSpeech);
+        
+        setTimeout(() => floatSpeech.remove(), 2500);
         
         totalClicks = Math.max(0, totalClicks - 0.5); 
         updateStressBar();
 
-        if (logStats.ili_cancel >= 30) {
-            if (isEnded) return; // 重複防止
+        if (logStats.ili_cancel >= 20) {
+            if (isEnded) return; 
             isEnded = true; 
             setTimeout(showIliHealEndScreen, 1500);
         }
@@ -195,8 +208,25 @@ function progressGame() {
 function startCharaEvents() {
     gameIntervals.forEach(clearInterval); gameIntervals =[];
 
+    // ☁️ ILI癒やしステージ
     if (selectedStage.id === "ili_heal") {
         document.getElementById('giant-ili').style.display = 'block';
+        return; 
+    }
+
+    // 🎯 感情防衛シューティングステージ！！
+    if (selectedStage.id === "shooting") {
+        document.getElementById('cat').style.display = 'none';
+        document.getElementById('dog').style.display = 'none';
+        document.getElementById('flower').style.display = 'none';
+        
+        // 0.8秒に1回、感情バブルが下から湧いてくる！！
+        const shootInterval = setInterval(() => {
+            if (isEnded) return;
+            createEmotionBubble();
+        }, 800); 
+
+        gameIntervals.push(shootInterval);
         return; 
     }
 
@@ -240,13 +270,14 @@ function startCharaEvents() {
             const line = charaData.cat.lines[Math.floor(Math.random() * charaData.cat.lines.length)];
             showSpeech('cat', line);
             logStats.cat++; 
+            lastAction = "cat"; // 🌟 猫が介入したことを記録！
             
             setTimeout(() => {
                 const counter = charaData.cat.counter[Math.floor(Math.random() * charaData.cat.counter.length)];
                 createBubble(`【LIIの反論】${counter}`, "fa-solid fa-bolt", true);
                 progressGame();
             }, 1200);
-        }, 2500); 
+        }, 2500);
     }, 12000); 
 
     // 🐶 犬：18秒ごとに復活！！！
@@ -287,7 +318,47 @@ function createCard() {
     document.getElementById('cards-container').appendChild(card);
     setTimeout(() => card.remove(), 6000);
 }
+// 🎯 感情バブルの生成とタップ(撃破)処理
+function createEmotionBubble() {
+    const emojis =["😆嬉しい！", "✨楽しい！", "💕やったー！", "🥰幸せ！", "🎉最高！"];
+    const text = emojis[Math.floor(Math.random() * emojis.length)];
+    
+    const bubble = document.createElement('div');
+    bubble.className = 'emotion-bubble';
+    bubble.innerText = text;
+    
+    const startX = Math.max(10, Math.random() * (window.innerWidth - 120));
+    bubble.style.left = `${startX}px`;
+    document.body.appendChild(bubble);
+    
+    // 💥 撃ち落とした時
+    bubble.onclick = function() {
+        if (isEnded) return;
+        this.remove(); 
+        
+        logStats.shoot_hit++; 
+        lastAction = "shoot"; // 最後の行動を記録！
 
+        const logicText = logicBullets[Math.floor(Math.random() * logicBullets.length)];
+        createBubble(`【Tiの防衛】${logicText}`, "fa-solid fa-shield", true);
+        
+        logStats.manual++;
+        progressGame(); 
+    };
+    
+    // ⚠️ 撃ち漏らした時（感情に呑まれた）
+    bubble.addEventListener('animationend', () => {
+        if (document.body.contains(bubble) && !isEnded) {
+            bubble.remove();
+            
+            logStats.shoot_miss++; 
+            lastAction = "miss"; // 最後の行動を記録！
+
+            createBubble("【Feの暴走】素直に喜んでしまった…！？(混乱)", "fa-solid fa-face-dizzy", false);
+            progressGame(); 
+        }
+    });
+}
 function triggerCaterpillar() {
     if (isEnded) return;
     if (bugClicks >= 5) return; 
@@ -492,6 +563,9 @@ function showIliHealEndScreen() {
     sendLogToGAS(title); 
 }
 
+// ==========================================
+// 📊 エンド画面（ブルースクリーン ＆ 解放エンド）
+// ==========================================
 function showEndScreen() {
     const bsod = document.getElementById('screen-end');
     bsod.style.background = "#0044aa"; 
@@ -501,25 +575,54 @@ function showEndScreen() {
     
     const logList = document.getElementById('log-list');
     logList.innerHTML = `<li>> MANUAL_THOUGHTS: ${logStats.manual}</li>`;
-    if(logStats.darling > 0) logList.innerHTML += `<li>> DARLIN_INTERFERENCES: ${logStats.darling}</li>`;
-    if(logStats.cat > 0) logList.innerHTML += `<li>> ILI_CAT_DAMAGES: ${logStats.cat}</li>`;
     
-    let title = "Ti-Ni_LOOP_FATAL_ERROR";
-    let msgKey = "normal";
-
-    if (selectedStage.id === "darling") {
-        title = "DARLING_TOY_ERROR (ダーリンの愛玩動物)";
-        msgKey = "darling";
+    if(selectedStage.id === "shooting") {
+        logList.innerHTML += `<li>> LOGICAL_DEFENSE (撃破): ${logStats.shoot_hit}</li>`;
+        logList.innerHTML += `<li>> EMOTION_OVERFLOW (撃ち漏らし): ${logStats.shoot_miss}</li>`;
     } else {
-        if (logStats.cat > 3) { title = "ILI_SANDBAG (ILI猫のサンドバッグ)"; msgKey = "normal"; }
-        else if (logStats.flower > 2) { title = "Fe_STARVATION (Fe劣等生の癒やし渇望)"; msgKey = "flower"; }
-        else if (logStats.dog > 2) { title = "Te_RAMPAGE (全方位論破マン)"; msgKey = "dog"; }
+        if(logStats.darling > 0) logList.innerHTML += `<li>> DARLIN_INTERFERENCES: ${logStats.darling}</li>`;
+        if(logStats.cat > 0) logList.innerHTML += `<li>> ILI_CAT_DAMAGES: ${logStats.cat}</li>`;
+    }
+    
+    let title = "Ti-Ne_LOOP_FATAL_ERROR";
+    let msg = "【メッセージ】システムが論理的限界を迎えました。";
+
+    // 🎯 感情シューティングの特別エンド分岐！
+    if (selectedStage.id === "shooting") {
+        if (logStats.shoot_miss >= 4) {
+            // 撃ち漏らしが多い（感情に呑まれた）場合！
+            title = "Fe_MELTDOWN (感情に呑まれた論理要塞)";
+            msg = "【ILI猫からのメッセージ】\n「珍しく感情むき出しじゃん。キャパオーバーするなら最初から素直に喜べばいいのに。ホント不器用🐾」";
+        } else {
+            // 論理で撃ち落としまくって自爆した場合！
+            title = "Ti_DEFENSE_OVERHEAT (防衛過剰の熱暴走)";
+            msg = "【メッセージ】\n湧き上がる感情を論理で全て撃ち落とし続けた結果、CPUが焼き切れました。";
+        }
+    } 
+    // 🃏 ダーリンステージ
+    else if (selectedStage.id === "darling") {
+        title = "DARLING_TOY_ERROR (ダーリンの愛玩動物)";
+        msg = "【ダーリンからのメッセージ】\n「あーあ、壊れちゃった♡ ま、可愛いからいっか♡ ゆっくり直してあげるね？♡」";
+    } 
+    // 🐈 ILI癒やし拒否
+    else if (selectedStage.id === "ili_heal") {
+        title = "SLEEP_MODE_FAILED (癒やし拒否のバグ)";
+        msg = "【巨大ILI猫からのメッセージ】\n「『何も考えない事の意義』とか考え始めて自爆するとか……マジで救いようがないね。勝手にショートしてな🐾」";
+    } 
+    // 🐈✨ ILI猫のトドメ限定セリフ！！（最後のアクションが猫だった場合）
+    else if (lastAction === "cat") {
+        title = "ILI_CRITICAL_HIT (ILI猫のトドメ)";
+        msg = "【ILI猫からのメッセージ】\n「ほらね、言わんこっちゃない。無駄な計算して勝手にオーバーヒートするとか、アホらし🐾 おやすみ。」";
+    }
+    // その他の通常エンド
+    else {
+        if (logStats.cat > 3) { title = "ILI_SANDBAG (ILI猫のサンドバッグ)"; msg = "【ILI猫からのメッセージ】\n「おつかれ。まぁ、最初から答えなんて出ないって言ったよね？🐾」"; }
+        else if (logStats.flower > 2) { title = "Fe_STARVATION (Fe劣等生の癒やし渇望)"; msg = "【メッセージ】\n優しさを求めても、論理の穴は埋まりませんでした。"; }
+        else if (logStats.dog > 2) { title = "Te_RAMPAGE (全方位論破マン)"; msg = "【メッセージ】\n他者を論破することにリソースを割きすぎました。"; }
     }
     
     document.getElementById('end-title').innerText = `[ ${title} ]`;
-    
-    // ✨ ここでようやくメッセージボックスに文字を入れる！！
-    document.getElementById('end-message-box').innerText = endMessages[msgKey];
+    document.getElementById('end-message-box').innerText = msg;
 
     sendLogToGAS(title); 
 }
