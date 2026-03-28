@@ -347,6 +347,7 @@ function createEmotionBubble() {
     };
     
     // ⚠️ 撃ち漏らした時（感情に呑まれた）
+// ⚠️ 撃ち漏らして画面外に出ちゃった場合（感情に呑まれた！）
     bubble.addEventListener('animationend', () => {
         if (document.body.contains(bubble) && !isEnded) {
             bubble.remove();
@@ -355,7 +356,26 @@ function createEmotionBubble() {
             lastAction = "miss"; // 最後の行動を記録！
 
             createBubble("【Feの暴走】素直に喜んでしまった…！？(混乱)", "fa-solid fa-face-dizzy", false);
-            progressGame(); 
+            
+            // 🌟 みつきの神アイデア！4つ撃ち漏らしたら強制終了！！
+            if (logStats.shoot_miss >= 4) {
+                isEnded = true; // 多重実行防止！
+                gameIntervals.forEach(clearInterval); // バブルの発生を止める
+                
+                // ストレスゲージを強制的にMAXにする演出！
+                totalClicks = maxClicksPerStage;
+                updateStressBar();
+                
+                // 画面を揺らしてフリーズ画面へ強制移行！
+                document.getElementById('main-container').classList.add('shake');
+                setTimeout(() => {
+                    document.getElementById('main-container').classList.remove('shake');
+                    showEndScreen();
+                }, 500);
+            } else {
+                // まだ4回未満なら通常のストレス増加
+                progressGame(); 
+            }
         }
     });
 }
