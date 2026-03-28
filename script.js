@@ -554,7 +554,7 @@ function showIliHealEndScreen() {
     document.getElementById('bsod-h1').innerText = "SYSTEM_SLEEP_MODE_ACTIVATED";
     document.getElementById('bsod-p').innerHTML = 
         "A peaceful state has been detected and your brain has been put to sleep to save energy.<br><br>" +
-        "STATUS: Ti_Ne_LOOP_CANCELED<br>" +
+        "STATUS: Ti_Ni_LOOP_CANCELED<br>" +
         "SUCCESS_PROCESS: sleep_mode.exe<br><br>" +
         "Have a good night. No more logic is needed here.";
 
