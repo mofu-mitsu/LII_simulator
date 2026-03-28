@@ -343,3 +343,39 @@ body {
     .giant-ili { font-size: 180px; bottom: -30px; }
     .giant-speech { font-size: 14px; left: 50%; top: 30px; }
 }
+/* --- 🐈 巨大ILI猫の浮遊セリフ（見切れ防止！） --- */
+.giant-ili-floating-speech {
+    position: fixed;
+    background: rgba(255, 255, 255, 0.95); color: #11111b;
+    padding: 12px 20px; border-radius: 20px; border: 2px solid #a6adc8;
+    font-size: 14px; font-weight: bold;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    z-index: 600; pointer-events: none;
+    animation: floatUpAndFade 2.5s forwards;
+    white-space: normal; /* 折り返し許可 */
+    max-width: 250px;
+}
+@keyframes floatUpAndFade {
+    0% { transform: translateY(0) scale(0.8); opacity: 0; }
+    20% { transform: translateY(-10px) scale(1); opacity: 1; }
+    80% { transform: translateY(-40px) scale(1); opacity: 1; }
+    100% { transform: translateY(-60px) scale(0.8); opacity: 0; }
+}
+
+/* --- 🎯 感情防衛シューティング用のバブル --- */
+.emotion-bubble {
+    position: fixed;
+    background: #ffb3c6; color: #900020;
+    padding: 15px 25px; border-radius: 50px;
+    font-weight: bold; font-size: 16px;
+    cursor: crosshair; /* マウスカーソルが照準になる！ */
+    z-index: 150;
+    box-shadow: 0 0 15px rgba(255, 179, 198, 0.8);
+    animation: floatUp 4s linear forwards;
+    user-select: none;
+}
+.emotion-bubble:active { transform: scale(1.2); }
+@keyframes floatUp {
+    0% { bottom: -50px; transform: scale(0.8) rotate(-5deg); opacity: 1; }
+    100% { bottom: 110vh; transform: scale(1.2) rotate(5deg); opacity: 0.5; }
+}
